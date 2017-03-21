@@ -1,20 +1,13 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Meredith Dart"
-date: "21 March 2017"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
+Meredith Dart  
+21 March 2017  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-options(scipen = 1, digits = 2)
-```
+
 
 ## Loading and preprocessing the data
 
-```{r echo = TRUE}
+
+```r
 ## unzip file
 
     unzip("activity.zip", exdir = ".")
@@ -26,30 +19,31 @@ options(scipen = 1, digits = 2)
 ## calculate summaries
     tot_steps <- aggregate(steps ~ date, data = activity, FUN = sum, na.rm = TRUE)
     avg_steps_intv <- aggregate(steps ~ interval, data = activity, FUN = mean, na.rm = TRUE)
-
 ```
 
 ## What is the mean total number of steps taken per day?
 
 The following histogram shows the average total number of steps per day.
 
-```{r, echo = TRUE}
+
+```r
 ## read in libraries
     library(ggplot2)
 
     ggplot(tot_steps, aes(x = steps)) + geom_histogram(binwidth = 600) + 
         labs(title = "Average total number of steps with missing values removed")
-
 ```
 
-The mean total number of steps per day is `r mean(tot_steps$steps)` and the median total number of steps per day is `r median(tot_steps$steps)`.
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+The mean total number of steps per day is 10766.19 and the median total number of steps per day is 10765.
 
 ## What is the average daily activity pattern?
 
 The following plot shows the average number of steps taken per day by interval.
 
-```{r, echo = TRUE}
 
+```r
     ggplot(aggregate(steps ~ interval, data = activity, FUN = mean)) +
         geom_line(aes(interval, steps)) + 
         scale_x_continuous(breaks = round(seq(min(activity$interval), 
@@ -65,13 +59,15 @@ The following plot shows the average number of steps taken per day by interval.
                                      "minutes after midnight"), colour = "red")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 ## Imputing missing values
 
-There are `r sum(is.na(activity))` rows with missing data. All of the missing values are in the steps column.
+There are 2304 rows with missing data. All of the missing values are in the steps column.
 The following code imputes values for the missing data using the average number of steps for each interval across all days. This assumes that most people spread their activity across the day in a typical daily routine but ignores any skew in the data caused by the distribution of missing values.
 
-```{r, echo = TRUE}
 
+```r
     activity_c <- activity
     activity_c[is.na(activity_c$steps), "steps"] <- tapply(activity_c$steps,
                                                            activity_c$interval,
@@ -80,15 +76,16 @@ The following code imputes values for the missing data using the average number 
 
 The following histogram shows the average total number of steps per day with missing values imputed.
 
-```{r, echo = TRUE}
 
+```r
     ggplot(aggregate(steps ~ date, data = activity_c, FUN = sum), aes(x = steps)) +
         geom_histogram(binwidth = 600) + 
         labs(title = "Average total number of steps with missing values imputed")
-
 ```
 
-The mean total number of steps per day is `r mean(aggregate(steps ~ date, data = activity_c, FUN = sum)$steps)` and the median total number of steps per day is `r median(aggregate(steps ~ date, data = activity_c, FUN = sum)$steps)`.
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+The mean total number of steps per day is 10766.19 and the median total number of steps per day is 10766.19.
 
 Imputing missing values by the above method has moved the median towards the mean.
     
@@ -97,8 +94,8 @@ Imputing missing values by the above method has moved the median towards the mea
 
 The following panel plot compares weekday and weekend activity.
 
-```{r, echo = TRUE}
 
+```r
 ## create factor column for day type
 
     activity_c$day.type <- as.factor(with(activity_c, 
@@ -115,5 +112,6 @@ The following panel plot compares weekday and weekend activity.
         theme(strip.background = element_rect(fill="peachpuff")) +
         labs(y = "Steps", x = "Interval")  +
         labs(title = "Weekday activity is concentrated during the morning")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
